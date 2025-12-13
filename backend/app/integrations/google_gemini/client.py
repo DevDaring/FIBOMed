@@ -12,7 +12,7 @@ class GeminiClient:
         """Initialize Gemini client"""
         try:
             genai.configure(api_key=settings.GEMINI_API_KEY)
-            self.model = genai.GenerativeModel(settings.GEMINI_MODEL)
+            self.model = genai.GenerativeModel(settings.GEMINI_MODEL_NAME)
             self.chat_sessions: Dict[str, any] = {}
         except Exception as e:
             raise GeminiError(f"Failed to initialize Gemini client: {str(e)}")

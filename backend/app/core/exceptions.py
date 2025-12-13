@@ -29,3 +29,31 @@ class GeminiError(FIBOMedException):
     """Gemini API error"""
 
     pass
+
+
+class FIBOError(FIBOMedException):
+    """Base exception for FIBO operations"""
+
+    def __init__(self, message: str, code: str, details: str = None):
+        self.message = message
+        self.code = code
+        self.details = details
+        super().__init__(message)
+
+
+class FIBOAPIError(FIBOError):
+    """Error from FIBO API"""
+
+    pass
+
+
+class FIBOStorageError(FIBOError):
+    """Error storing visualization"""
+
+    pass
+
+
+class FIBOValidationError(FIBOError):
+    """Validation error for FIBO requests"""
+
+    pass

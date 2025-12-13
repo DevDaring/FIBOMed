@@ -1,10 +1,51 @@
 /**
- * Chat Interface Component - Main chat UI with voice support
+ * Chat Interface Component - Main chat UI with voice support and FIBO visualization
+ * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5
  */
 import React, { useState, useRef, useEffect } from 'react';
 import VoiceInput from './VoiceInput';
+import ImageGenerator from './ImageGenerator';
+import ImageViewer from './ImageViewer';
 import chatApi from '../../api/chat.api';
+import { fiboApi } from '../../api/fibo.api';
 import { ChatResponse, ChatMessage } from '../../types/chat.types';
+import { VisualizationResult } from '../../types/fibo.types';
+
+/**
+ * Simple markdown to HTML converter for chat messages
+ * Handles: **bold**, *italic*, bullet points, numbered lists
+ */
+const formatMarkdown = (text: string): string => {
+  if (!text) return '';
+  
+  let formatted = text
+    // Escape HTML first
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    // Bold: **text** or __text__
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(.+?)__/g, '<strong>$1</strong>')
+    // Italic: *text* or _text_
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/_(.+?)_/g, '<em>$1</em>')
+    // Line breaks
+    .replace(/\n/g, '<br/>');
+  
+  return formatted;
+};
+
+/**
+ * Component to render formatted markdown text
+ */
+const FormattedText: React.FC<{ text: string }> = ({ text }) => {
+  return (
+    <span 
+      dangerouslySetInnerHTML={{ __html: formatMarkdown(text) }}
+      className="formatted-text"
+    />
+  );
+};
 
 export const ChatInterface: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -14,6 +55,8 @@ export const ChatInterface: React.FC = () => {
   const [speakerEnabled, setSpeakerEnabled] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [languageCode, setLanguageCode] = useState('en-US');
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [generatingVisualizationId, setGeneratingVisualizationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -153,6 +196,73 @@ export const ChatInterface: React.FC = () => {
     }
   };
 
+  /**
+   * Handle successful image generation
+   * Requirements: 4.1 - Render image inline within chat message
+   */
+  const handleImageGenerated = (result: VisualizationResult) => {
+    const visualizationMessage: ChatMessage = {
+      id: `viz-${Date.now()}`,
+      sessionId: sessionId || 'default',
+      userMessage: `🎨 Generated visualization`,
+      botResponse: 'Here is your generated medical visualization:',
+      imageUrl: result.imageUrl,
+      visualizationId: result.visualizationId,
+      structuredPrompt: result.structuredPrompt,
+      timestamp: result.createdAt,
+    };
+
+    setMessages((prev) => [...prev, visualizationMessage]);
+    setIsGeneratingImage(false);
+    setGeneratingVisualizationId(null);
+  };
+
+  /**
+   * Handle image generation error
+   * Requirements: 4.3 - Display error message with API error details
+   */
+  const handleImageError = (errorMessage: string) => {
+    setError(errorMessage);
+    setIsGeneratingImage(false);
+    setGeneratingVisualizationId(null);
+  };
+
+  /**
+   * Handle image refinement request
+   * Requirements: 4.5 - Show button to request refinement
+   */
+  const handleRefineImage = async (visualizationId: string, refinementPrompt: string) => {
+    setIsGeneratingImage(true);
+    setGeneratingVisualizationId(visualizationId);
+    setError(null);
+
+    try {
+      const result = await fiboApi.refineVisualization(visualizationId, {
+        prompt: refinementPrompt,
+      });
+
+      // Add refined visualization as a new message
+      const refinedMessage: ChatMessage = {
+        id: `viz-refined-${Date.now()}`,
+        sessionId: sessionId || 'default',
+        userMessage: `✨ Refined: "${refinementPrompt}"`,
+        botResponse: 'Here is your refined visualization:',
+        imageUrl: result.imageUrl,
+        visualizationId: result.visualizationId,
+        structuredPrompt: result.structuredPrompt,
+        timestamp: result.createdAt,
+      };
+
+      setMessages((prev) => [...prev, refinedMessage]);
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to refine visualization';
+      setError(errorMsg);
+    } finally {
+      setIsGeneratingImage(false);
+      setGeneratingVisualizationId(null);
+    }
+  };
+
   return (
     <div className="chat-interface">
       <div className="chat-header">
@@ -208,7 +318,20 @@ export const ChatInterface: React.FC = () => {
             </div>
             <div className="message bot-message">
               <div className="message-content">
-                <p>{msg.botResponse}</p>
+                <div className="bot-response-text">
+                  <FormattedText text={msg.botResponse} />
+                </div>
+                {/* Requirements: 4.1 - Render image inline within chat message */}
+                {msg.imageUrl && msg.visualizationId && (
+                  <ImageViewer
+                    imageUrl={msg.imageUrl}
+                    visualizationId={msg.visualizationId}
+                    onRefine={(prompt) => handleRefineImage(msg.visualizationId!, prompt)}
+                    allowFullscreen={true}
+                    isLoading={generatingVisualizationId === msg.visualizationId}
+                    loadingText="Refining visualization..."
+                  />
+                )}
                 {msg.audioUrl && (
                   <button
                     onClick={() => playAudio(msg.audioUrl!)}
@@ -251,12 +374,12 @@ export const ChatInterface: React.FC = () => {
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type your message..."
-            disabled={isLoading}
+            disabled={isLoading || isGeneratingImage}
             rows={2}
           />
           <button
             onClick={handleSendTextMessage}
-            disabled={isLoading || !inputMessage.trim()}
+            disabled={isLoading || isGeneratingImage || !inputMessage.trim()}
             className="send-button"
             title="Send message"
           >
@@ -267,7 +390,17 @@ export const ChatInterface: React.FC = () => {
         <div className="voice-input-container">
           <VoiceInput
             onRecordingComplete={handleVoiceRecordingComplete}
-            disabled={isLoading}
+            disabled={isLoading || isGeneratingImage}
+          />
+        </div>
+
+        {/* Requirements: 4.2 - Image generation with loading state */}
+        <div className="image-generator-container">
+          <ImageGenerator
+            onImageGenerated={handleImageGenerated}
+            onError={handleImageError}
+            disabled={isLoading || isGeneratingImage}
+            sessionId={sessionId}
           />
         </div>
       </div>

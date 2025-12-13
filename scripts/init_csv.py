@@ -19,6 +19,8 @@ def create_directories():
         CSV_DIR,
         UPLOAD_DIR / "audio",
         GENERATED_DIR / "audio",
+        GENERATED_DIR / "visualizations",
+        GENERATED_DIR / "prompts",
     ]
 
     for directory in directories:
@@ -78,14 +80,13 @@ def initialize_csv_files():
         ],
         "visualizations.csv": [
             "id",
-            "report_id",
-            "fibo_params_id",
+            "prompt",
+            "structured_prompt",
             "image_path",
-            "generation_date",
-            "complexity_level",
-            "approved_by",
-            "corrections_count",
-            "quality_score",
+            "seed",
+            "parent_id",
+            "aspect_ratio",
+            "created_at",
         ],
     }
 

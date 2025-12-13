@@ -11,6 +11,12 @@ export interface ChatMessage {
   audioUrl?: string;
   timestamp: string;
   languageCode?: string;
+  /** URL of the generated visualization image */
+  imageUrl?: string;
+  /** Unique identifier for the visualization */
+  visualizationId?: string;
+  /** Structured prompt used for image generation */
+  structuredPrompt?: Record<string, unknown>;
 }
 
 export interface ChatMessageRequest {

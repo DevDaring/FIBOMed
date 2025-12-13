@@ -152,6 +152,25 @@
   word-wrap: break-word;
 }
 
+/* Formatted text styles for bot responses */
+.bot-response-text {
+  line-height: 1.6;
+}
+
+.bot-response-text strong {
+  font-weight: 600;
+  color: #333;
+}
+
+.bot-response-text em {
+  font-style: italic;
+  color: #555;
+}
+
+.formatted-text {
+  display: block;
+}
+
 .transcription-badge {
   display: inline-block;
   background: rgba(255, 255, 255, 0.3);
@@ -419,3 +438,420 @@
     width: 100%;
   }
 }
+
+
+/* ============================================
+   ImageViewer Component Styles
+   Requirements: 4.1, 4.4
+   ============================================ */
+
+.image-viewer {
+  width: 100%;
+  margin: 10px 0;
+}
+
+.image-viewer-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.image-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.image-wrapper.clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.image-wrapper.clickable:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.image-wrapper img {
+  display: block;
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.image-placeholder {
+  width: 300px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  border-radius: 12px;
+}
+
+.fullscreen-hint {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.image-wrapper.clickable:hover .fullscreen-hint {
+  opacity: 1;
+}
+
+/* Image Viewer Error State */
+.image-viewer-error {
+  padding: 20px;
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 12px;
+  color: #c33;
+  text-align: center;
+}
+
+/* Image Refinement Input - Requirements: 4.5 */
+.image-refinement {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px;
+  background: #f7f7f7;
+  border-radius: 12px;
+}
+
+.refinement-input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.refinement-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.refinement-button {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.refinement-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.refinement-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Fullscreen Modal - Requirements: 4.4 */
+.image-fullscreen-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.fullscreen-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 85vh;
+}
+
+.fullscreen-content img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.fullscreen-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fullscreen-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.fullscreen-backdrop-hint {
+  position: absolute;
+  bottom: 20px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+
+/* ============================================
+   ImageGenerator Component Styles
+   Requirements: 4.2, 4.3
+   ============================================ */
+
+.image-generator {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 15px 0;
+  transition: border-color 0.3s;
+}
+
+.image-generator:focus-within {
+  border-color: #667eea;
+}
+
+.image-generator-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.image-generator-icon {
+  font-size: 24px;
+}
+
+.image-generator-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.image-generator-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.prompt-input-container {
+  width: 100%;
+}
+
+.prompt-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.prompt-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.prompt-input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.image-generator-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.aspect-ratio-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.aspect-ratio-label {
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.aspect-ratio-dropdown {
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.aspect-ratio-dropdown:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.aspect-ratio-dropdown:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.generate-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 25px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s;
+  margin-left: auto;
+}
+
+.generate-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.generate-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.generate-button.generating {
+  background: linear-gradient(135deg, #a0a0a0 0%, #808080 100%);
+}
+
+/* Loading Spinner for Generate Button */
+.generate-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Image Generator Error Display - Requirements: 4.3 */
+.image-generator-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 10px;
+  margin-top: 15px;
+  animation: fadeIn 0.3s ease;
+}
+
+.error-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.error-text {
+  flex: 1;
+  color: #c33;
+  font-size: 14px;
+}
+
+.error-dismiss {
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  color: #c33;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 50%;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.error-dismiss:hover {
+  background: rgba(204, 51, 51, 0.1);
+}
+
+/* ============================================
+   Loading Indicator Styles for Image Generation
+   Requirements: 4.2
+   ============================================ */
+
+.image-viewer-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  border-radius: 12px;
+  min-height: 200px;
+}
+
+.image-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e0e0e0;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.image-loading-spinner.small {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+}
+
+.image-loading-text {
+  margin-top: 15px;

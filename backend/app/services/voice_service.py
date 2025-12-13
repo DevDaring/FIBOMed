@@ -93,6 +93,22 @@ class VoiceService:
             lang_code = language_code or settings.GOOGLE_TTS_LANGUAGE_CODE
             voice = voice_name or settings.GOOGLE_TTS_VOICE_NAME
 
+            # Google TTS has a 5000 byte limit - truncate if needed
+            MAX_TTS_BYTES = 4800  # Leave some buffer
+            text_bytes = text.encode('utf-8')
+            if len(text_bytes) > MAX_TTS_BYTES:
+                # Truncate to fit within limit, try to end at a sentence
+                truncated = text_bytes[:MAX_TTS_BYTES].decode('utf-8', errors='ignore')
+                # Try to end at last complete sentence
+                last_period = truncated.rfind('.')
+                last_question = truncated.rfind('?')
+                last_exclaim = truncated.rfind('!')
+                last_sentence_end = max(last_period, last_question, last_exclaim)
+                if last_sentence_end > len(truncated) // 2:
+                    text = truncated[:last_sentence_end + 1]
+                else:
+                    text = truncated + "..."
+
             # Configure synthesis input
             synthesis_input = texttospeech.SynthesisInput(text=text)
 
