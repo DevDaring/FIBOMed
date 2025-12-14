@@ -47,10 +47,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ initialPrompt, use
   // Determine which session ID to use:
   // 1. If initialSessionId is provided (e.g., viz-DOC001-RPT001), use it directly to load shared sessions
   // 2. Otherwise, use stored session from localStorage
+  // CRITICAL: Always prioritize initialSessionId when provided - this is for shared doctor-patient sessions
   const effectiveSessionId = initialSessionId || storedSid;
   
-  // Track if history has been loaded to prevent duplicate loads
-  const historyLoadedRef = React.useRef(false);
+  // Debug logging
+  console.log('ChatInterface mounted with:', { initialSessionId, userId, effectiveSessionId, storedSid });
   
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState(initialPrompt || '');
@@ -75,12 +76,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ initialPrompt, use
 
   // Load chat history when session ID is available
   const loadChatHistory = useCallback(async (sid: string) => {
-    if (!sid) return;
-    console.log('Loading chat history for session:', sid);
+    if (!sid) {
+      console.log('loadChatHistory called with empty session ID, skipping');
+      return;
+    }
+    console.log('=== LOADING CHAT HISTORY ===');
+    console.log('Session ID to load:', sid);
     setIsLoadingHistory(true);
     try {
       const result = await chatApi.getChatHistory(sid, 100, 0);
-      console.log('Chat history result:', result);
+      console.log('Chat history API response:', result);
+      console.log('Number of messages:', result.messages?.length || 0);
       if (result.messages && result.messages.length > 0) {
         // Convert backend messages to frontend format, parsing special message types
         const loadedMessages: ChatMessage[] = result.messages.map((msg: any) => {
@@ -218,28 +224,34 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ initialPrompt, use
   
   // Load history when component mounts or when initialSessionId changes
   useEffect(() => {
-    // Reset history loaded flag when session ID changes
-    historyLoadedRef.current = false;
+    console.log('=== HISTORY LOADING EFFECT ===');
+    console.log('initialSessionId prop:', initialSessionId);
+    console.log('effectiveSessionId:', effectiveSessionId);
+    console.log('storedSid:', storedSid);
     
     // Clear existing messages when switching sessions
     setMessages([]);
     
-    // Use effectiveSessionId which prioritizes initialSessionId for shared doctor-patient sessions
-    const sidToLoad = effectiveSessionId;
-    console.log('Loading history for session:', sidToLoad, 'initialSessionId:', initialSessionId);
+    // CRITICAL: Use initialSessionId directly if provided (for shared doctor-patient sessions)
+    // This ensures we load the exact session the doctor created
+    const sidToLoad = initialSessionId || effectiveSessionId;
+    console.log('Final session ID to load:', sidToLoad);
     
-    if (sidToLoad && !historyLoadedRef.current) {
-      historyLoadedRef.current = true;
+    if (sidToLoad) {
+      // Always load history when we have a session ID
       loadChatHistory(sidToLoad);
+    } else {
+      console.log('No session ID available, showing empty chat');
     }
-  }, [effectiveSessionId, loadChatHistory, initialSessionId]);
+  }, [initialSessionId, loadChatHistory]); // Include loadChatHistory in deps
   
-  // Reset history loaded flag when component unmounts
+  // Also load history when effectiveSessionId changes (for localStorage-based sessions)
   useEffect(() => {
-    return () => {
-      historyLoadedRef.current = false;
-    };
-  }, []);
+    if (!initialSessionId && effectiveSessionId) {
+      console.log('Loading history for stored session (secondary effect):', effectiveSessionId);
+      loadChatHistory(effectiveSessionId);
+    }
+  }, [effectiveSessionId, initialSessionId, loadChatHistory]);
   
   // Update session ID and store it
   const updateSessionId = useCallback((newSid: string) => {

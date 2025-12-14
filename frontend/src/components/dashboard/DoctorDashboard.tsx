@@ -295,33 +295,47 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ user, onLogout }) => 
               </div>
             )}
 
-            {activeTab === 'visualize' && (
+            {activeTab === 'visualize' && (() => {
+              const doctorSessionId = selectedReport ? `viz-${user.id}-${selectedReport.id}` : `viz-${user.id}`;
+              console.log('=== DOCTOR VISUALIZE TAB ===');
+              console.log('Selected report:', selectedReport);
+              console.log('Doctor user.id:', user.id);
+              console.log('Session ID for ChatInterface:', doctorSessionId);
+              return (
               <div className="visualize-tab">
                 <h2>Medical Visualization</h2>
                 {selectedReport && (
                   <div className="selected-report-info">
                     <p>For: <strong>{selectedReport.title}</strong></p>
+                    <p style={{fontSize: '0.8rem', color: '#666'}}>Session: {doctorSessionId}</p>
                   </div>
                 )}
                 <ChatInterface 
                   key={`viz-${selectedReport?.id || 'default'}`}
                   initialPrompt={selectedReport ? `Generate a medical visualization for ${selectedReport.report_type} showing ${selectedReport.title}` : undefined} 
                   userId={user.id}
-                  sessionId={selectedReport ? `viz-${user.id}-${selectedReport.id}` : `viz-${user.id}`}
+                  sessionId={doctorSessionId}
                 />
               </div>
-            )}
+              );
+            })()}
 
-            {activeTab === 'chat' && (
+            {activeTab === 'chat' && (() => {
+              const chatSessionId = `chat-${user.id}`;
+              console.log('=== DOCTOR AI CHAT TAB ===');
+              console.log('Chat session ID:', chatSessionId);
+              return (
               <div className="chat-tab">
                 <h2>AI Assistant</h2>
+                <p style={{fontSize: '0.8rem', color: '#666', marginBottom: '10px'}}>Session: {chatSessionId}</p>
                 <ChatInterface 
                   key={`chat-${user.id}`}
                   userId={user.id} 
-                  sessionId={`chat-${user.id}`}
+                  sessionId={chatSessionId}
                 />
               </div>
-            )}
+              );
+            })()}
           </>
         )}
       </main>

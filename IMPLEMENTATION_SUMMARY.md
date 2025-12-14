@@ -128,7 +128,7 @@
 5. **Audio played to user** → Browser plays audio response
 
 ### Multilingual Support
-- **7 Languages Supported**: English, Hindi, Spanish, French, German, Japanese, Chinese
+- **7 Languages Supported**: English, Hindi, Bengali, Spanish, French, German, Japanese, Chinese
 - **Automatic Language Detection**: Detects language from AI response
 - **Appropriate Voice Selection**: Uses native voices for each language
 - **Seamless Switching**: User can change language mid-conversation

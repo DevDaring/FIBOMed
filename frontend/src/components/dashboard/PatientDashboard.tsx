@@ -29,6 +29,13 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user, onLogout }) =
         userApi.getDashboard(user.id),
         userApi.getReports(user.id)
       ]);
+      console.log('=== PATIENT DASHBOARD LOADED ===');
+      console.log('Dashboard data:', dashData);
+      console.log('Reports data:', reportsData);
+      // Log each report's doctor_id to verify it's being returned
+      reportsData.forEach((r: any) => {
+        console.log(`Report ${r.id}: doctor_id=${r.doctor_id}, patient_id=${r.patient_id}`);
+      });
       setDashboard(dashData);
       setReports(reportsData);
     } catch (err) {
@@ -42,6 +49,9 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user, onLogout }) =
 
   // Handle View Visual button click - switch to visualizations tab with report context
   const handleViewVisual = (report: Report) => {
+    console.log('handleViewVisual called with report:', report);
+    console.log('Report doctor_id:', report.doctor_id);
+    console.log('Session ID will be:', `viz-${report.doctor_id}-${report.id}`);
     setSelectedReport(report);
     setActiveTab('visualizations');
   };
@@ -167,13 +177,20 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user, onLogout }) =
               </div>
             )}
 
-            {activeTab === 'visualizations' && (
+            {activeTab === 'visualizations' && (() => {
+              const sessionIdForChat = selectedReport ? `viz-${selectedReport.doctor_id}-${selectedReport.id}` : undefined;
+              console.log('=== PATIENT VISUALIZATIONS TAB ===');
+              console.log('selectedReport:', selectedReport);
+              console.log('selectedReport.doctor_id:', selectedReport?.doctor_id);
+              console.log('selectedReport.id:', selectedReport?.id);
+              console.log('Computed sessionIdForChat:', sessionIdForChat);
+              return (
               <div className="visualize-tab">
                 <h2>Visual Health Explanations</h2>
                 <p className="tab-description">
                   {selectedReport 
                     ? "View the visualization your doctor created for your report."
-                    : "Ask questions about your health conditions and get visual explanations powered by AI."}
+                    : "Select a report from 'My Reports' tab and click 'View Visual' to see your doctor's analysis."}
                 </p>
                 {selectedReport && (
                   <div className="selected-report-info">
@@ -182,6 +199,9 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user, onLogout }) =
                       Created by: Dr. {selectedReport.doctor_id === 'DOC001' ? 'Anita Sharma' : 
                                        selectedReport.doctor_id === 'DOC002' ? 'Vikram Singh' : 
                                        selectedReport.doctor_id === 'DOC003' ? 'Sunita Reddy' : selectedReport.doctor_id}
+                    </p>
+                    <p style={{fontSize: '0.75rem', color: '#999', marginTop: '4px'}}>
+                      Session: {sessionIdForChat}
                     </p>
                     <button 
                       className="action-btn small" 
@@ -192,13 +212,21 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user, onLogout }) =
                     </button>
                   </div>
                 )}
+                {!selectedReport && (
+                  <div className="info-card" style={{marginBottom: '20px', padding: '15px', background: '#fff3cd', borderRadius: '8px'}}>
+                    <p style={{margin: 0, color: '#856404'}}>
+                      💡 To view your doctor's analysis, go to "My Reports" tab and click "View Visual" on any report.
+                    </p>
+                  </div>
+                )}
                 <ChatInterface 
                   userId={user.id} 
-                  sessionId={selectedReport ? `viz-${selectedReport.doctor_id}-${selectedReport.id}` : undefined}
-                  key={`patient-viz-${selectedReport ? `${selectedReport.doctor_id}-${selectedReport.id}` : 'default'}-${Date.now()}`}
+                  sessionId={sessionIdForChat}
+                  key={selectedReport ? `patient-viz-${selectedReport.doctor_id}-${selectedReport.id}` : 'patient-viz-default'}
                 />
               </div>
-            )}
+              );
+            })()}
 
             {activeTab === 'chat' && (
               <div className="chat-tab">
