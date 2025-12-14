@@ -6,6 +6,9 @@
 # Secrets folder (API keys, credentials)
 secrets/
 
+# Cloud build configuration with secrets
+cloudbuild.yaml
+
 # Python
 __pycache__/
 *.py[cod]
