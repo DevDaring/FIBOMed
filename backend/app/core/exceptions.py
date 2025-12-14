@@ -57,3 +57,25 @@ class FIBOValidationError(FIBOError):
     """Validation error for FIBO requests"""
 
     pass
+
+
+class ReportProcessingError(FIBOMedException):
+    """Error processing medical report"""
+
+    def __init__(self, message: str, code: str, details: str = None):
+        self.message = message
+        self.code = code
+        self.details = details
+        super().__init__(message)
+
+
+class UserNotFoundError(FIBOMedException):
+    """User not found"""
+
+    pass
+
+
+class UnauthorizedError(FIBOMedException):
+    """Unauthorized access"""
+
+    pass
