@@ -17,6 +17,13 @@ export interface ChatMessage {
   visualizationId?: string;
   /** Structured prompt used for image generation */
   structuredPrompt?: Record<string, unknown>;
+  /** Document upload info */
+  documentInfo?: {
+    filename: string;
+    fileType: string;
+    isMedicalImage: boolean;
+    previewUrl?: string;
+  };
 }
 
 export interface ChatMessageRequest {

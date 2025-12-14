@@ -85,11 +85,11 @@ SECRETS_ENV_PATH = get_env_file_path()
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
 
-    # API Keys
-    GEMINI_API_KEY: str
+    # API Keys - Can be set via environment variables in Cloud Run
+    GEMINI_API_KEY: str = ""
     GOOGLE_API_KEY: Optional[str] = None
     GOOGLE_APPLICATION_CREDENTIALS: Optional[str] = None
-    FIBO_PROD_API_KEY: str
+    FIBO_PROD_API_KEY: str = ""
 
     # Server Configuration
     BACKEND_URL: str = "http://localhost:8000"

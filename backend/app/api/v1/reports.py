@@ -38,10 +38,12 @@ class ReportListItem(BaseModel):
     """Report list item"""
     id: str
     patient_id: str
+    doctor_id: str
+    title: str
     report_type: str
-    upload_date: str
-    processed_status: str
-    analysis_result: Optional[str] = None
+    status: str
+    created_at: str
+    file_path: Optional[str] = None
 
 
 class GenerateVisualizationRequest(BaseModel):
@@ -140,22 +142,27 @@ async def process_report(report_id: str):
 
 
 @router.get("/list", response_model=List[ReportListItem])
-async def list_reports(patient_id: Optional[str] = None):
+async def list_reports(patient_id: Optional[str] = None, user_id: Optional[str] = None):
     """
-    List all reports, optionally filtered by patient ID.
+    List all reports, optionally filtered by patient ID or user ID.
     """
     try:
         report_service = get_report_service()
-        reports = await report_service.get_all_reports(patient_id)
+        
+        # If user_id is provided, use it as patient_id filter
+        filter_patient = patient_id or user_id
+        reports = await report_service.get_all_reports(filter_patient)
         
         return [
             ReportListItem(
                 id=r['id'],
                 patient_id=r['patient_id'],
+                doctor_id=r.get('uploaded_by_id', ''),
+                title=r.get('analysis_result', f"{r['report_type'].title()} Report"),
                 report_type=r['report_type'],
-                upload_date=r['upload_date'],
-                processed_status=r['processed_status'],
-                analysis_result=r.get('analysis_result')
+                status=r['processed_status'],
+                created_at=r.get('created_at', r.get('upload_date', '')),
+                file_path=r.get('file_path')
             )
             for r in reports
         ]

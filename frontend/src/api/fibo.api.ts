@@ -34,8 +34,10 @@ interface BackendErrorDetail {
 
 /**
  * Backend base URL for static files (images)
+ * Use relative URL in production (same origin), localhost in development
  */
-const BACKEND_BASE_URL = 'http://localhost:8000';
+const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const BACKEND_BASE_URL = isProduction ? '' : 'http://localhost:8000';
 
 /**
  * Transform snake_case backend response to camelCase frontend type

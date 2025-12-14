@@ -72,13 +72,19 @@ chmod +x run.sh
 
 ## 👥 Test Credentials
 
-| Role | Email | User ID |
-|------|-------|---------|
-| Doctor | dr.anita@fibomed.com | DOC001 |
-| Doctor | dr.vikram@fibomed.com | DOC002 |
-| Patient | rajesh.kumar@email.com | PAT001 |
-| Patient | priya.patel@email.com | PAT002 |
-| Technician | tech.ravi@fibomed.com | TECH001 |
+Test credentials are displayed on the login page for easy testing. Click any card to auto-fill:
+
+| Role | Email | Password | Name |
+|------|-------|----------|------|
+| 👨‍⚕️ Doctor | dr.anita@fibomed.com | demo123 | Dr. Anita Sharma (Cardiologist) |
+| 🧑 Patient | koushik.deb@email.com | demo123 | Koushik Deb (Cardiac patient) |
+| 🔬 Technician | tech.ravi@fibomed.com | demo123 | Ravi Technician |
+
+Additional test users:
+- DOC002: dr.vikram@fibomed.com (Endocrinologist)
+- DOC003: dr.sunita@fibomed.com (Pulmonologist)
+- PAT002: priya.patel@email.com (Diabetes patient)
+- PAT003: mohammed.ali@email.com (COPD patient)
 
 ## 📁 Project Structure
 
@@ -171,26 +177,67 @@ Medical prompts are automatically enhanced with:
 
 ## 🐳 Docker Deployment
 
+### Local Docker
+
 ```bash
 # Build image
 docker build -t fibomed .
 
-# Run container
-docker run -p 8000:8000 fibomed
+# Run container with environment variables
+docker run -p 8000:8000 \
+  -e GEMINI_API_KEY=your_key \
+  -e FIBO_PROD_API_KEY=your_key \
+  fibomed
 ```
 
-### GCP Cloud Run
+### GCP Cloud Run Deployment
 
+1. **Build and push to Container Registry**
 ```bash
-# Build and push
-gcloud builds submit --tag gcr.io/PROJECT_ID/fibomed
+# Set your project ID
+export PROJECT_ID=your-gcp-project-id
 
-# Deploy
-gcloud run deploy fibomed \
-  --image gcr.io/PROJECT_ID/fibomed \
-  --platform managed \
-  --allow-unauthenticated
+# Build and push
+gcloud builds submit --tag gcr.io/$PROJECT_ID/fibomed
 ```
+
+2. **Deploy to Cloud Run**
+```bash
+gcloud run deploy fibomed \
+  --image gcr.io/$PROJECT_ID/fibomed \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --memory 2Gi \
+  --cpu 2 \
+  --set-env-vars "GEMINI_API_KEY=your_key,FIBO_PROD_API_KEY=your_key,GOOGLE_API_KEY=your_key"
+```
+
+3. **Using Secret Manager (Recommended)**
+```bash
+# Create secrets
+echo -n "your_gemini_key" | gcloud secrets create GEMINI_API_KEY --data-file=-
+echo -n "your_fibo_key" | gcloud secrets create FIBO_PROD_API_KEY --data-file=-
+
+# Deploy with secrets
+gcloud run deploy fibomed \
+  --image gcr.io/$PROJECT_ID/fibomed \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --memory 2Gi \
+  --cpu 2 \
+  --set-secrets "GEMINI_API_KEY=GEMINI_API_KEY:latest,FIBO_PROD_API_KEY=FIBO_PROD_API_KEY:latest"
+```
+
+### Required Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| GEMINI_API_KEY | Google Gemini API key | Yes |
+| FIBO_PROD_API_KEY | BRIA FIBO Production API key | Yes |
+| GOOGLE_API_KEY | Google Cloud API key | Optional |
+| GOOGLE_APPLICATION_CREDENTIALS | Path to service account JSON | Optional |
 
 ## 📊 Sample Medical Reports
 

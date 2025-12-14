@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
 from app.config import settings
-from app.api.v1 import chat, health, fibo, reports, users
+from app.api.v1 import chat, health, fibo, reports, users, documents
 
 # Create FastAPI app
 app = FastAPI(
@@ -48,6 +48,7 @@ if os.path.exists(visualizations_path):
 os.makedirs(os.path.join(settings.UPLOAD_PATH, "reports"), exist_ok=True)
 os.makedirs(os.path.join(settings.UPLOAD_PATH, "medical_images"), exist_ok=True)
 os.makedirs(os.path.join(settings.UPLOAD_PATH, "prescriptions"), exist_ok=True)
+os.makedirs(os.path.join(settings.UPLOAD_PATH, "documents"), exist_ok=True)
 
 # Include routers (must be before catch-all route)
 app.include_router(health.router, prefix="/api/v1", tags=["health"])
@@ -55,6 +56,7 @@ app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
 app.include_router(fibo.router, prefix="/api/v1", tags=["fibo"])
 app.include_router(reports.router, prefix="/api/v1", tags=["reports"])
 app.include_router(users.router, prefix="/api/v1", tags=["users"])
+app.include_router(documents.router, prefix="/api/v1", tags=["documents"])
 
 
 @app.get("/")

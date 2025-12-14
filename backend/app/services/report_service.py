@@ -3,6 +3,7 @@ import csv
 import json
 import os
 import uuid
+from pathlib import Path as PathLib
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, List
@@ -119,6 +120,9 @@ class ReportService:
         
         # Read report content
         file_path = report_data['file_path']
+        # Handle relative paths
+        if not os.path.isabs(file_path):
+            file_path = PROJECT_ROOT / file_path
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 report_content = f.read()

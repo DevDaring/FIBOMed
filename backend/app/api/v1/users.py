@@ -57,7 +57,7 @@ class PatientResponse(BaseModel):
     conditions: List[str]
 
 
-@router.post("/login", response_model=LoginResponse)
+@router.post("/login", response_model=UserResponse)
 async def login(request: LoginRequest):
     """
     Authenticate user and return user info.
@@ -71,17 +71,16 @@ async def login(request: LoginRequest):
         if not user:
             raise HTTPException(
                 status_code=401,
-                detail={"code": "AUTH_FAILED", "message": "Invalid email or password"}
+                detail="Invalid email or password"
             )
         
-        return LoginResponse(
-            success=True,
-            user_id=user.id,
+        return UserResponse(
+            id=user.id,
             email=user.email,
             username=user.username,
             role=user.role,
             full_name=user.full_name,
-            message="Login successful"
+            is_active=user.is_active
         )
         
     except HTTPException:
@@ -89,7 +88,7 @@ async def login(request: LoginRequest):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail={"code": "LOGIN_ERROR", "message": str(e)}
+            detail=str(e)
         )
 
 

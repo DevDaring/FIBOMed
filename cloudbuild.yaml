@@ -1,0 +1,39 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/fibomed:$COMMIT_SHA', '.']
+    timeout: '1200s'
+
+  # Push the container image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/fibomed:$COMMIT_SHA']
+
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'fibomed'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/fibomed:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--cpu'
+      - '2'
+      - '--memory'
+      - '2Gi'
+      - '--timeout'
+      - '300'
+      - '--set-env-vars'
+      - 'GEMINI_API_KEY=AIzaSyB6aL5WIX8iyHACvFozh05UJW151WuV7vY,GOOGLE_API_KEY=AIzaSyByCt9oeyr7Pzc6zfYAuR31X6CTmKh3qak,FIBO_PROD_API_KEY=4e0a4d8a453845779c76e10d69f49447,GEMINI_MODEL_NAME=gemini-2.5-flash'
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/fibomed:$COMMIT_SHA'
+
+timeout: '1800s'
+options:
+  logging: CLOUD_LOGGING_ONLY

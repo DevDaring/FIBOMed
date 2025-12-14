@@ -1,3 +1,5 @@
+# Google Cloud Ignore File for Cloud Run Deployment
+
 # Git
 .git
 .gitignore
@@ -8,11 +10,12 @@
 *.swp
 *.swo
 
-# Secrets - NEVER include in Docker image
+# Secrets - CRITICAL: Never deploy secrets to Cloud Run
+# Use Secret Manager or environment variables instead
 secrets/
 
 # Python
-__pycache__
+__pycache__/
 *.py[cod]
 *$py.class
 *.so
@@ -43,19 +46,22 @@ env/
 .venv/
 
 # Node
-frontend/node_modules
+frontend/node_modules/
 frontend/.npm
 frontend/.yarn
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Build artifacts (we build fresh in Docker)
-frontend/dist
+# Build artifacts
+frontend/dist/
 
-# Documentation (keep README)
-*.md
-!README.md
+# Documentation (except README)
+FIBO_Med.md
+FIBO_Use.md
+FIBO_Usage.py
+Full_Project_Plan.md
+IMPLEMENTATION_SUMMARY.md
 
 # Kiro specs
 .kiro/
@@ -72,6 +78,7 @@ frontend/dist
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example
 
 # OS files
 .DS_Store
@@ -85,10 +92,12 @@ logs/
 tmp/
 temp/
 
-# Generated data (will be created at runtime)
+# Local run scripts
+run.bat
+run.sh
+
+# Generated data (will be created at runtime in Cloud Run)
 data/generated/
 data/uploads/reports/*.txt
 data/uploads/prescriptions/*.txt
-
-# Backup files
 data/backups/

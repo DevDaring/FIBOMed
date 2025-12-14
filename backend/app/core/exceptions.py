@@ -79,3 +79,9 @@ class UnauthorizedError(FIBOMedException):
     """Unauthorized access"""
 
     pass
+
+
+class DocumentProcessingError(FIBOMedException):
+    """Document processing failed"""
+
+    pass

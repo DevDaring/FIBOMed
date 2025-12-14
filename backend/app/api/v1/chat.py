@@ -136,3 +136,26 @@ async def get_chat_history(session_id: str, limit: int = 50, offset: int = 0):
         return {"session_id": session_id, "messages": messages, "count": len(messages)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to retrieve chat history: {str(e)}")
+
+
+@router.get("/chat/user/{user_id}/sessions")
+async def get_user_sessions(user_id: str):
+    """Get all chat sessions for a user"""
+    try:
+        import csv
+        import os
+        from ...config import settings
+        
+        sessions = []
+        csv_path = os.path.join(settings.CSV_DATA_PATH, "chat_sessions.csv")
+        
+        if os.path.exists(csv_path):
+            with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    if row.get('user_id') == user_id or row.get('doctor_id') == user_id:
+                        sessions.append(row)
+        
+        return {"user_id": user_id, "sessions": sessions}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve sessions: {str(e)}")

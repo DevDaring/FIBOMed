@@ -48,10 +48,6 @@ COPY backend/ ./backend/
 # Copy built frontend from Stage 1
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
-# Copy secrets directory (environment variables)
-# Note: For production, use Cloud Run secrets or environment variables instead
-COPY secrets/.env ./secrets/.env
-
 # Copy initialization scripts
 COPY scripts/ ./scripts/
 
@@ -61,10 +57,32 @@ RUN mkdir -p \
     data/generated/visualizations \
     data/generated/prompts \
     data/generated/audio \
-    data/uploads/audio
+    data/uploads/audio \
+    data/uploads/reports \
+    data/uploads/prescriptions \
+    data/resources/parameter_presets \
+    secrets
 
-# Copy CSV data files if they exist
+# Copy CSV data files (sample data for demo)
 COPY data/csv_files/ ./data/csv_files/
+
+# Copy resource files (parameter presets)
+COPY data/resources/ ./data/resources/
+
+# Copy sample reports for demo
+COPY data/uploads/reports/ ./data/uploads/reports/
+COPY data/uploads/prescriptions/ ./data/uploads/prescriptions/
+
+# NOTE: For Cloud Run deployment, set environment variables via:
+# - Cloud Run console
+# - gcloud run deploy --set-env-vars
+# - Secret Manager for sensitive values
+# 
+# Required environment variables:
+# - FIBO_PROD_API_KEY: BRIA FIBO API key
+# - GOOGLE_API_KEY: Google Gemini API key
+# - GOOGLE_CLOUD_PROJECT: GCP project ID
+# - GOOGLE_APPLICATION_CREDENTIALS: Path to service account JSON (optional)
 
 # Expose port 8000 for Cloud Run
 EXPOSE 8000
